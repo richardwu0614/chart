@@ -53,11 +53,12 @@
     </div>
     <h3>臺灣各縣市有機栽培狀況折線圖</h3>
     <div id="ssboa">請選擇縣市</div>
+    <div id="sscbox"> </div>
     <script>
         // 1. 定義width, height, padding, letterList變數
         var w = 600;
         var h = 400;
-        var p = 100;
+        var p = 80;
         var letterList = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "P", "Q", "T", "U", "V", "W", "X", "Z"];
         var d_typearr=["rice","vegetables","fruit","tea","other"];
         var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
@@ -79,7 +80,7 @@
         //3. 用d3讀取csv
         d3.csv("COA_OpenData.csv", mid2, function(dataSet2) {
             allData2 = dataSet2;    
-            update2('新北市');                        
+            update2('南投縣');                        
             btnList2(allData2);            
         });
         
@@ -118,6 +119,39 @@
             
             return d;
         }
+ 
+
+        var d_typearr=["rice","vegetables","fruit","tea","other"];
+        var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
+        btucheckbox(d_typearr,d_namearr);
+        //產生CHECKBOX
+        
+        function cachange(aa){
+            var value = d3.select('#select2').property("value");            
+            
+            update2(value);
+        }
+        
+        function btucheckbox(d_typearr,d_namearr){
+            
+            //------- bind --------
+            //選項
+            
+              d3.select("#sscbox").selectAll("input")
+              .data(d_typearr)
+              .enter()
+              .append("label")
+              .html(function(d,i) { return "&nbsp;&nbsp;"+d_namearr[i]; })            
+              .append("input")              
+              .attr("checked", true)
+              .attr("type", "checkbox")
+              .attr("id", function(d,i) { return "cb_"+d; })
+              .attr("onClick", "cachange(this.value);")
+              .attr("for", function(d,i) { return i; });                     
+            
+            
+        }    
+    
 
         //產生縣市別下拉
         function btnList2(dataSet2) {
@@ -176,46 +210,64 @@
                 return d.city == industryName;
             });
             
-           console.table(newdataSet2);      
+           //console.table(newdataSet2);      
             
-  
-
- 
+   
             var d_typearr=["rice","vegetables","fruit","tea","other"];
             var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
 
-                    var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
-                        bind2(mod_dataSet_rice,"rice");
-                        render2(mod_dataSet_rice,"rice");                                    
-
-                    var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
-                        bind2(mod_dataSet_vegetables,"vegetables");
-                        render2(mod_dataSet_vegetables,"vegetables");                                    
+                if( d3.select('#cb_rice').property('checked')==true){
+                var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
+                    bind2(mod_dataSet_rice,"rice");
+                    render2(mod_dataSet_rice,"rice");                                    
+               }else{
+                   d3.selectAll("#rice-line").remove(); 
+                   d3.selectAll("#rice").remove(); 
+               }
             
+                if(d3.select('#cb_vegetables').property('checked')==true){       
+                var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
+                    bind2(mod_dataSet_vegetables,"vegetables");
+                    render2(mod_dataSet_vegetables,"vegetables");   
+                }else{
+                   d3.selectAll("#vegetables-line").remove(); 
+                   d3.selectAll("#vegetables").remove();                     
+                }
+
+                if(d3.select('#cb_fruit').property('checked')==true){                    
                 var mod_dataSet_fruit=mod_data(newdataSet2,"fruit","水果");
                     bind2(mod_dataSet_fruit,"fruit");
                     render2(mod_dataSet_fruit,"fruit");        
-                    //console.log(mod_dataSet_fruit);            
-            
+               }else{
+                   d3.selectAll("#fruit-line").remove(); 
+                   d3.selectAll("#fruit").remove();                                        
+               }
+
+                if(d3.select('#cb_tea').property('checked')==true){   
+                   console.log(d3.select('#cb_tea').property('checked'));
                 var  mod_dataSet_tea=mod_data(newdataSet2,"tea","茶葉");
                     bind2(mod_dataSet_tea,"tea");
                     render2(mod_dataSet_tea,"tea");
-                    //console.log(mod_dataSet_tea);
+                }else{
+                   d3.selectAll("#tea-line").remove(); 
+                   d3.selectAll("#tea").remove();                                                            
+                }
 
+                if(d3.select('#cb_other').property('checked')==true){                        
                 var mod_dataSet_other=mod_data(newdataSet2,"other","其他含特作雜糧");
                     bind2(mod_dataSet_other,"other");
-                    render2(mod_dataSet_other,"other");                                    
+                    render2(mod_dataSet_other,"other");
+                }else{
+                   d3.selectAll("#other-line").remove(); 
+                   d3.selectAll("#other").remove();                                                                                
+                }
             
 
         }
         
         function mod_data(tempdataSet,mod_Ename,mod_Cname){
-
-           //var get_data=[];    
-            
+           
             var get_data_val=[];
-   
-            
             
             tempdataSet.forEach(function(dd,ii){ 
                  var get_data = new Object();
@@ -348,9 +400,7 @@
                     cx: function(d) {
                         return xScale(new Date((Number(d.year)+1911)+'-01-01'));
                     },
-                    cy: function(d) {
-                        return yScale(d.s_area);
-                    },
+                    cy: h+p,
                     r: 2,
                     fill: function(d) {
                         return fdtypeScale(d_Ename);
@@ -376,7 +426,7 @@
                     });
                    // console.log("x:"+posX+"Y:"+posY);
                 
-                    mak_ine((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);                             
+                    mak_ine_none((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);                             
                 
                 }).on("mouseout", function() {
                     d3.select("#tooltip2").classed("hidden", true);
@@ -388,7 +438,10 @@
                .transition()
                .duration(1000)
                 .attr({
-                    r: 6,
+                    cy:function(d) {
+                        return yScale(d.s_area);
+                    },
+                    r: 6
                 });                 
               
    
@@ -457,22 +510,38 @@
         
         function mak_ine(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum){                          
             d3.select("body>svg").append("line")
-//               .transition()
-//               .duration(1000)
-//              .delay(500)
                 .attr({
                 "id":setidp, 
                 "x1":lstr_x,
                 "y1":lstr_y,
                 "x2":lend_x,
                 "y2":lend_y,
-                "stroke-width":2,
+                "stroke-width":0,
                 "stroke":fdtypeScale(cnum) 
-            });
-            
+            })
+            .transition()
+            .duration(1000)
+            .delay(500)
+            .attr({
+               "stroke-width":2 
+            });            
             
         }
-      
+
+        function mak_ine_none(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum){                          
+            d3.select("body>svg").append("line")
+                .attr({
+                "id":setidp, 
+                "x1":lstr_x,
+                "y1":lstr_y,
+                "x2":lend_x,
+                "y2":lend_y,
+                "stroke-width":1,
+                "stroke":fdtypeScale(cnum) 
+            });            
+            
+        }
+        
         
         
         
