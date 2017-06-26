@@ -103,6 +103,7 @@
         
         
         function mid2(d) {
+            d.year = +d.year;
             d.rice_count = +d.rice_count;
             d.rice_area = +d.rice_area;
             
@@ -440,7 +441,7 @@
                         })
                         .classed("hidden", false);
                     tooltip2.select("#city").text(function(){
-                        return d.city;
+                        return d.city+" ("+(d.year+1911)+") ";
                     });
                     tooltip2.select("#category").text(function(){
                         return (d.s_name+"栽培面積:"+d.s_area+"公頃");
@@ -450,7 +451,12 @@
                     });
                    // console.log("x:"+posX+"Y:"+posY);
                 
-                    mak_ine_none((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);                             
+                    mak_ine_none((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);  
+                
+                    
+                
+                
+                
                 
                 }).on("mouseout", function() {
                     d3.select("#tooltip2").classed("hidden", true);
