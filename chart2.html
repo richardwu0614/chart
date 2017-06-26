@@ -81,7 +81,13 @@
         d3.csv("COA_OpenData.csv", mid2, function(dataSet2) {
             allData2 = dataSet2;    
             update2('南投縣');                        
-            btnList2(allData2);            
+            btnList2(allData2);
+            
+            d3.select('#select2 option[value="南投縣"] ').attr("selected","selected");
+            //selected="selected"
+            //d3.select("#ssboa").append("select").attr({
+			//		id:"select2",
+			//	})
         });
         
         function mak_polyline(points,setidp,cnum){            
@@ -244,7 +250,7 @@
                }
 
                 if(d3.select('#cb_tea').property('checked')==true){   
-                   console.log(d3.select('#cb_tea').property('checked'));
+                  // console.log(d3.select('#cb_tea').property('checked'));
                 var  mod_dataSet_tea=mod_data(newdataSet2,"tea","茶葉");
                     bind2(mod_dataSet_tea,"tea");
                     render2(mod_dataSet_tea,"tea");
