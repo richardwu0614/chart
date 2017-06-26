@@ -1,0 +1,345 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>有機作物種植面積散布圖</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <style>
+        body {
+            background: #eee;
+        }
+        
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: auto;
+        }
+        
+        .axis text {
+            font-size: 10px;
+        }
+        #tooltip.hidden {
+            display: none;
+        }
+        #tooltip {
+            position: absolute;
+            /* left: 20px; */
+            /* top:  100px; */
+            background: #fff;
+            width: 150px;
+            height: auto;
+            padding: 0px 10px;
+            border-radius: 5px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+        }
+		select{
+			font-size:16px;
+			width:120px;
+		}
+    </style>
+</head>
+
+<body>
+<div id="ims">
+	<h1 id="namest">總合</h1>
+    <div id="tooltip" class="hidden">
+        <p><strong id="city">Hello</strong></p>
+        <p id="count">tooltip</p>
+        <p id="area">種植面積:tooltip</p>
+    </div>
+    </div>
+    <script>
+        // 1. 定義width, height, padding, letterList變數
+        var w = 900;
+        var h = 600;
+        var p = 60;
+        var letterList = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "P", "Q", "T", "U", "V", "W", "X", "Z"];
+
+        //2. 建立svg()畫布環境
+        var allData;
+        svg();
+
+        //3. 用d3讀取csv
+        d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_total, function(dataSet) {
+            allData = dataSet.filter(function(d) {
+                return d.total_area != "0" && d.total_count != "0";
+            });
+			
+            bind(allData);
+            render(allData);
+            btnList(dataSet);
+            
+            svg3.append("polyline").attr({
+            "points":points,
+            "fill":"transparent",
+            "stroke":"black"
+            });          
+            
+			
+        });
+
+        function mid_total(d) {
+            d.total_count = formatFloat((Number(d.rice_count)+Number(d.vegetables_count)+Number(d.fruit_count)+Number(d.tea_count)+Number(d.other_count)), 2);
+            d.total_area = formatFloat((Number(d.rice_area)+Number(d.vegetables_area)+Number(d.fruit_area)+Number(d.tea_area)+Number(d.other_area)),2);
+            return d;
+        }
+		
+		function mid_rice(d) {
+            d.total_count = +d.rice_count;
+            d.total_area = +d.rice_area;
+            return d;
+        }
+		
+		function mid_vegetables(d) {
+            d.total_count = +d.vegetables_count;
+            d.total_area = +d.vegetables_area;
+            return d;
+        }
+		
+		function mid_fruit(d) {
+            d.total_count = +d.fruit_count;
+            d.total_area = +d.fruit_area;
+            return d;
+        }
+		
+		function mid_tea(d) {
+            d.total_count = +d.tea_count;
+            d.total_area = +d.tea_area;
+            return d;
+        }
+		
+		function mid_other(d) {
+            d.total_count = +d.other_count;
+            d.total_area = +d.other_area;
+            return d;
+        }
+        //產生作物按鈕
+        function btnList(dataSet) {
+            uIndustryArr=['總合','水稻','蔬菜','水果','茶','其他']
+
+            //改成選單
+			d3.select("#ims").append("br");d3.select("#ims").append("br");
+			d3.select("#ims").append("span").text("請選擇統計作物別：").style({
+				'font-size':'16px',
+            });
+            var selection = d3.select("#ims")
+                .append("select")
+                .selectAll("option")
+                .data(uIndustryArr);
+            selection.enter().append("option");
+            selection.exit().remove();
+
+
+
+
+            //------- render -------
+            d3.selectAll("#ims>select>option")
+                .attr({
+                    value: function(d) {
+                        return d;
+                    }
+                })
+                .text(function(d) {
+                    return d;
+                });
+
+
+            d3.select('select').on("change", function(d) {
+                var value = d3.select('select').property("value");
+                update(value);
+				var name = d3.select("#namest");
+                name.text(value);
+            });
+
+
+
+        }
+
+        function update(industryName) {
+			console.log(industryName);
+            switch(industryName){
+				case '總合':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_total, function(dataSet) {
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+				case '水稻':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_rice, function(dataSet) {	
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+				case '蔬菜':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_vegetables, function(dataSet) {
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+				case '水果':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_fruit, function(dataSet) {	
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+				case '茶':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_tea, function(dataSet) {	
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+				case '其他':
+				d3.csv("https://a706124.github.io/end_of_period/COA_OpenData.csv", mid_other, function(dataSet) {	
+					bind(dataSet);
+					render(dataSet);
+				});
+				break;
+			}
+        }
+
+        //陣列移除重複
+        function unique(array) {
+            var n = [];
+            for (var i = 0; i < array.length; i++) {
+                if (n.indexOf(array[i]) == -1)
+                    n.push(array[i]);
+            }
+            return n;
+        }
+
+        function svg() {
+            d3.select("#ims").append("svg").attr({
+                width: w,
+                height: h
+            });
+            d3.select("#ims>svg").append("g").append("rect").attr({
+                width: "100%",
+                height: "100%",
+                fill: "white"
+            });
+
+            d3.select("#ims>svg").append("g").attr({
+                id: "axisX"
+            });
+            d3.select("#ims>svg").append("g").attr({
+                id: "axisY"
+            });
+        }
+
+        //4. 建立bind()
+
+        function bind(dataSet) {
+            var selection = d3.select("#ims>svg")
+                .selectAll('circle')
+                .data(dataSet);
+
+            selection.enter().append("circle");
+            selection.exit().remove();
+        }
+
+        function render(dataSet) {
+            //5. 定義xScale,yScale,rScale, fScale比例尺(range目的在決定在svg上位置)
+
+            var xScale = d3.time.scale()
+                .domain([
+                    new Date("2003-10-01"),
+                    new Date("2015-01-01")
+                ])
+                .range([p, w - p]);
+            var yScale = d3.scale.linear()
+                .domain([0, d3.max(dataSet, function(d) {
+                    return d.total_count;
+                })])
+                .range([h - p, p]);
+            var rScale = d3.scale.linear()
+                .domain([
+                    d3.min(dataSet, function(d) {
+                        return d.total_area;
+                    }),
+                    d3.max(dataSet, function(d) {
+                        return d.total_area;
+                    }),
+                ])
+                .range([5, 30]);
+            var fScale = d3.scale.category20();
+
+            // axis X ----------------------
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+                .ticks(20);
+
+            d3.select("g#axisX")
+                .attr({
+                    'class': 'axis'
+                })
+                .attr("transform", "translate(0," + (h - p + 12) + ")")
+                .call(xAxis);
+
+            // axis Y -----------------------
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left")
+                .ticks(20)
+                /*.tickFormat(function(d) {
+                    return d / 1000000 + "M";
+                });*/
+
+            d3.select("g#axisY")
+                .attr({
+                    'class': 'axis'
+                })
+                .attr("transform", "translate(" + (p - 12) + "," + (0) + ")")
+                .call(yAxis);
+
+
+            //6. 建立render()繪圖
+            d3.selectAll("circle")
+                .attr({
+                    cx: function(d) {
+                        return xScale(new Date((Number(d.year)+1911)+'-01-01'));
+                    },
+                    cy: function(d) {
+                        return yScale(d.total_count);
+                    },
+                    r: function(d) {
+                        return rScale(d.total_area);
+                    },
+                    fill: function(d) {
+                        return fScale(d.city);
+                    }
+                }).on("mouseover", function(d) {
+                    var posX = +d3.select(this).attr("cx");
+                    var posY = +d3.select(this).attr("cy");
+
+                    var tooltip = d3.select("#tooltip")
+                        .style({
+                            left: (posX + 20) + "px",
+                            top: (posY + 20) + "px"
+                        })
+                        .classed("hidden", false);
+                    tooltip.select("#city").text(function(){
+                        return d.city;
+                    });
+                    tooltip.select("#count").text(function(){
+                        return '種植數量:'+(d.total_count);
+                    });
+					tooltip.select("#area").text(function(){
+                        return '種植面積:'+(d.total_area);
+                    });
+                }).on("mouseout", function() {
+                    d3.select("#tooltip").classed("hidden", true);
+                });
+        }
+function formatFloat(num, pos)
+{
+  var size = Math.pow(10, pos);
+  return Math.round(num * size) / size;
+}
+    </script>
+
+</body>
+
+</html>
