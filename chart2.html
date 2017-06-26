@@ -356,11 +356,12 @@
                     cy: function(d) {
                         return yScale(d.s_area);
                     },
-                    r: 6,
+                    r: 2,
                     fill: function(d) {
                         return fdtypeScale(d_Ename);
                     }
-                }).on("mouseover", function(d) {
+                })
+                .on("mouseover", function(d) {
                     var posX = +d3.select(this).attr("cx");
                     var posY = +d3.select(this).attr("cy");
                     var tooltip2 = d3.select("#tooltip2")
@@ -380,17 +381,20 @@
                     });
                    // console.log("x:"+posX+"Y:"+posY);
                 
-                    mak_ine((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);
-                
-                
+                    mak_ine((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);                             
                 
                 }).on("mouseout", function() {
                     d3.select("#tooltip2").classed("hidden", true);
-                    d3.selectAll('#mouse-line').remove();
+                    d3.selectAll('#mouse-line').remove();                
                 
-                
-                });    
-          
+                });
+            
+                d3.select("#"+d_Ename+"_g").selectAll("circle")
+               .transition()
+               .duration(1000)
+                .attr({
+                    r: 6,
+                });                 
               
    
     
