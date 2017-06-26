@@ -467,6 +467,7 @@
                 d3.select("#"+d_Ename+"_g").selectAll("circle")
                .transition()
                .duration(1000)
+               .ease("bounce")
                 .attr({
                     cy:function(d) {
                         return yScale(d.s_area);
