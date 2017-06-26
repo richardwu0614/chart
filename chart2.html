@@ -47,12 +47,13 @@
         <p id="category">Hello</p>
         <p id="count">tooltip2</p>
     </div>
-    <div id="ssboa"></div>
+    <h3>臺灣各縣市有機栽培狀況折線圖</h3>
+    <div id="ssboa">請選擇縣市</div>
     <script>
         // 1. 定義width, height, padding, letterList變數
-        var w = 900;
-        var h = 600;
-        var p = 60;
+        var w = 600;
+        var h = 400;
+        var p = 100;
         var letterList = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "P", "Q", "T", "U", "V", "W", "X", "Z"];
         var d_typearr=["rice","vegetables","fruit","tea","other"];
         var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
@@ -188,9 +189,9 @@
 //        var d_typearr=["rice","vegetables","fruit","tea","other"];
 //        var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
 
-//                var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
-//                    bind2(mod_dataSet_rice,"rice");
-//                    render2(mod_dataSet_rice,"rice");                                        
+                var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
+                    bind2(mod_dataSet_rice,"rice");
+                    render2(mod_dataSet_rice,"rice");                                    
 
                 var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
                     bind2(mod_dataSet_vegetables,"vegetables");
@@ -276,6 +277,11 @@
                     id: d+"_g"
                 });                
             });
+
+            d3.select("#svg2").append("g").attr({
+                id: "line-text"
+            });
+
             
             
         }
@@ -399,17 +405,58 @@
                 lend_x=xScale(new Date((Number(dataSet2[i]['year'] )+1911)+'-01-01'));                
                 lend_y=yScale(dataSet2[i]['s_area']);                
              
-                console.log(""+lstr_x+"-"+lstr_y+"-"+lend_x+"-"+lend_y);
+                //console.log(""+lstr_x+"-"+lstr_y+"-"+lend_x+"-"+lend_y);
                  mak_ine(lstr_x,lstr_y,lend_x,lend_y,d_Ename+'-line',d_Ename);
-            } 
-            
-               
+            }     
+
            
             
             
         }
         
-          function mak_ine(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum){                          
+            //說明line-text 
+            //d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
+           
+            var lt_p=70;//說明線的間隔
+            var lt_w=30;//說明線長
+            d_namearr.forEach(         
+                function(ld,li){
+                    lstr_x=(p+5)+(lt_p*li);
+                    lstr_y=(h-p)+50;
+                    lend_x=(p+5)+lt_w+(lt_p*li);
+                    lend_y=(h-p)+50;                    
+                    mak_ine_text(lstr_x,lstr_y,lend_x,lend_y,'line-text'+d_typearr[li],d_typearr[li],ld);
+                   console.log(ld);
+                }
+            
+            );
+        
+         function mak_ine_text(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum,c_text){                          
+            d3.select("body>svg").append("line")
+                .attr({
+                "id":setidp, 
+                "x1":lstr_x,
+                "y1":lstr_y,
+                "x2":lend_x,
+                "y2":lend_y,
+                "stroke-width":5,
+                "stroke":fdtypeScale(cnum) 
+            });
+            //console.log(c_text); 
+             
+          d3.select("body>svg").append("text").attr({//字
+            "x":lend_x+5,
+            "y":lend_y+5,
+		    "font-size":12,
+		    "font-family":"arial"
+            }).text(c_text);  
+             
+
+        }
+
+        
+        
+        function mak_ine(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum){                          
             d3.select("body>svg").append("line")
 //               .transition()
 //               .duration(1000)
@@ -420,10 +467,11 @@
                 "y1":lstr_y,
                 "x2":lend_x,
                 "y2":lend_y,
+                "stroke-width":2,
                 "stroke":fdtypeScale(cnum) 
             });
-              
-
+            
+            
         }
       
         
