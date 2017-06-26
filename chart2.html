@@ -19,14 +19,15 @@
         }
         
         .axis text {
-            font-size: 10px;
+            font-size: 10px;            
         }
         
         #tooltip2 {
             position: absolute;
             /* left: 20px; */
             /* top:  100px; */
-            background: #fff;
+            opacity:0.5;
+            background:#000;
             width: 150px;
             height: auto;
             padding: 0px 10px;
@@ -34,6 +35,9 @@
             box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
         }
         
+        #tooltip2 p{
+            color: #fff;
+        }
         #tooltip2.hidden {
             display: none;
         }
@@ -172,30 +176,21 @@
                 return d.city == industryName;
             });
             
-           //console.log(newdataSet2);
+           console.table(newdataSet2);      
             
-            
-           
-//            d_typearr.forEach(
-//                function(da,ia){
-//                    var mod_dataSet=mod_data(newdataSet2,da,d_namearr[ia]);
-//                    bind2(mod_dataSet,da);
-//                    render2(mod_dataSet,da);        
-//                    
-//                }               
-//            
-//            );
+  
+
  
-//        var d_typearr=["rice","vegetables","fruit","tea","other"];
-//        var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
+            var d_typearr=["rice","vegetables","fruit","tea","other"];
+            var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
 
-                var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
-                    bind2(mod_dataSet_rice,"rice");
-                    render2(mod_dataSet_rice,"rice");                                    
+                    var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
+                        bind2(mod_dataSet_rice,"rice");
+                        render2(mod_dataSet_rice,"rice");                                    
 
-                var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
-                    bind2(mod_dataSet_vegetables,"vegetables");
-                    render2(mod_dataSet_vegetables,"vegetables");                                    
+                    var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
+                        bind2(mod_dataSet_vegetables,"vegetables");
+                        render2(mod_dataSet_vegetables,"vegetables");                                    
             
                 var mod_dataSet_fruit=mod_data(newdataSet2,"fruit","水果");
                     bind2(mod_dataSet_fruit,"fruit");
@@ -366,8 +361,8 @@
                     var posY = +d3.select(this).attr("cy");
                     var tooltip2 = d3.select("#tooltip2")
                         .style({
-                            left: (posX + 20) + "px",
-                            top: (posY + 20) + "px"
+                            left: (w+10)+"px",
+                            top:  (posY + 20) + "px"
                         })
                         .classed("hidden", false);
                     tooltip2.select("#city").text(function(){
@@ -430,7 +425,7 @@
                     lend_x=(p+5)+lt_w+(lt_p*li);
                     lend_y=(h-p)+50;                    
                     mak_ine_text(lstr_x,lstr_y,lend_x,lend_y,'line-text'+d_typearr[li],d_typearr[li],ld);
-                   console.log(ld);
+                   //console.log(ld);
                 }
             
             );
