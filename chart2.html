@@ -28,7 +28,7 @@
             /* top:  100px; */
             opacity:0.5;
             background:#000;
-            width: 150px;
+            width: 200px;
             height: auto;
             padding: 0px 10px;
             border-radius: 5px;
@@ -394,8 +394,26 @@
                 })
                 .attr("transform", "translate(" + (p - 12) + "," + (0) + ")")
                 .call(yAxis);
+            
 
+            //y軸單位文字
+            d3.select("g#axisY").append("text").attr({
+            "x":-45,
+            "y":p-8,
+		    "font-size":12,
+		    "font-family":"arial"
+            }).text("面積-公頃");  
 
+            //X軸單位文字
+            d3.select("g#axisX").append("text").attr({
+            "x":w-p+15,
+            "y":+6,
+		    "font-size":12,
+		    "font-family":"arial"
+            }).text("時間-西元年");  
+            
+            
+            
             //6. 建立render()繪圖
         
             
@@ -425,7 +443,7 @@
                         return d.city;
                     });
                     tooltip2.select("#category").text(function(){
-                        return (d.s_name+"栽培面積:"+d.s_area);
+                        return (d.s_name+"栽培面積:"+d.s_area+"公頃");
                     });
                     tooltip2.select("#count").text(function(){
                         return (d.s_name+"戶數:"+d.s_count);
@@ -488,6 +506,9 @@
                 }
             
             );
+        
+           
+        
         
          function mak_ine_text(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum,c_text){                          
             d3.select("body>svg").append("line")
