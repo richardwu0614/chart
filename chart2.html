@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>home work 4-3</title>
+    <title>臺灣各縣市有機栽培狀況折線圖</title>
     <script src="https://d3js.org/d3.v3.js"></script>
     <style>
         body {
@@ -47,55 +47,86 @@
         <p id="category">Hello</p>
         <p id="count">tooltip2</p>
     </div>
+    <div id="ssboa"></div>
     <script>
         // 1. 定義width, height, padding, letterList變數
         var w = 900;
         var h = 600;
         var p = 60;
         var letterList = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "M", "N", "O", "P", "Q", "T", "U", "V", "W", "X", "Z"];
+        var d_typearr=["rice","vegetables","fruit","tea","other"];
+        var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
+        
 
+        
+        var fScale = d3.scale.category20();//縣市顏色
+        var fdtypeScale = d3.scale.category10();//作物顏色
         //2. 建立svg()畫布環境
         var allData2;
+        var xScale;
+        var yScale;
+        //var points=[];
         svg2();
 
+        
+        
+        
         //3. 用d3讀取csv
-        d3.csv("https://a706124.github.io/homework3/cancer_data.csv", mid2, function(dataSet2) {
-            allData2 = dataSet2;
-            bind2(dataSet2);
-            render2(dataSet2);
-            btnList2(dataSet2);
-
+        d3.csv("COA_OpenData.csv", mid2, function(dataSet2) {
+            allData2 = dataSet2;    
+            update2('新北市');                        
+            btnList2(allData2);            
         });
+        
+        function mak_polyline(points,setidp,cnum){            
+            d3.select("body>svg").append("polyline").attr({
+            "id":setidp,    
+            "points":points,
+            "fill":"transparent",
+            "stroke":fdtypeScale(cnum)
+            });          
 
+        }
+
+        
+        
         function mid2(d) {
-            d.avg_age = +d.avg_age;
-            d.count = +d.count;
-            d.mid_age = +d.mid_age;
-            d.crude_rate = +d.crude_rate;
+            d.rice_count = +d.rice_count;
+            d.rice_area = +d.rice_area;
+            
+            d.vegetables_count = +d.vegetables_count;
+            d.vegetables_area = +d.vegetables_area;
+            
+            d.fruit_count=+d.fruit_count;
+            d.fruit_area=+d.fruit_area;
+            
+            d.tea_count=+d.tea_count;
+            d.tea_area=+d.tea_area;
+            
+            d.other_count=+d.other_count;
+            d.other_area=+d.other_area;
+            
+            arr_y=[d.rice_area,d.vegetables_area,d.tea_area,d.other_area];
+            d.allarea_max=d3.max(arr_y, function(d) {
+                    return d;
+                })
+            
             return d;
         }
 
-        //產生行業別按鈕
+        //產生縣市別下拉
         function btnList2(dataSet2) {
             var industryArr = dataSet2.map(function(d) {
-                return d.category;
+                return d.city;
             });
 
             var uIndustryArr = unique(industryArr).filter(function(d) {
-                return d.category != "";
+                return d.city != "";
             });
 
             //------- bind --------
-            /* 按鈕
-            var selection = d3.select("body")
-                            .selectAll("input")
-                            .data(uIndustryArr);
-            selection.enter().append("input");
-            selection.exit().remove();
-            */
-
-            //改成選單
-            var selection = d3.select("body")
+            //選單
+            var selection = d3.select("#ssboa")
                 .append("select").attr({
 					id:"select2",
 				})
@@ -105,10 +136,8 @@
             selection.exit().remove();
 
 
-
-
             //------- render -------
-            d3.selectAll("body>#select2>option")
+            d3.select("#ssboa").selectAll("option")
                 .attr({
                     value: function(d) {
                         return d;
@@ -119,39 +148,101 @@
                 });
 
 
-            d3.select("#select2")
-                .insert("option", ":first-child")
-                .attr({
-                    value: "全部類別"
-                })
-                .text("全部類別");
+//            d3.select("#select2")
+//                .insert("option", ":first-child")
+//                .attr({
+//                    value: "全部縣市"
+//                })
+//                .text("全部縣市");
 
             d3.select('#select2').on("change", function(d) {
                 var value = d3.select('#select2').property("value");
-
-                if (value == "全部類別") {
-                    bind(allData2);
-                    render(allData2);
-                } else {
                     update2(value);
-                }
-
-
             });
 
 
 
         }
+        
+        
 
         function update2(industryName) {
             var newdataSet2 = allData2.filter(function(d) {
-                return d.category == industryName;
+                return d.city == industryName;
             });
-            bind2(newdataSet2);
-            render2(newdataSet2);
-        }
+            
+           //console.log(newdataSet2);
+            
+            
+           
+//            d_typearr.forEach(
+//                function(da,ia){
+//                    var mod_dataSet=mod_data(newdataSet2,da,d_namearr[ia]);
+//                    bind2(mod_dataSet,da);
+//                    render2(mod_dataSet,da);        
+//                    
+//                }               
+//            
+//            );
+ 
+//        var d_typearr=["rice","vegetables","fruit","tea","other"];
+//        var d_namearr=["水稻","蔬菜","水果","茶葉","其他含特作雜糧"];
 
-        //陣列移除重複
+//                var mod_dataSet_rice=mod_data(newdataSet2,"rice","水稻");
+//                    bind2(mod_dataSet_rice,"rice");
+//                    render2(mod_dataSet_rice,"rice");                                        
+
+                var mod_dataSet_vegetables=mod_data(newdataSet2,"vegetables","蔬菜");
+                    bind2(mod_dataSet_vegetables,"vegetables");
+                    render2(mod_dataSet_vegetables,"vegetables");                                    
+            
+                var mod_dataSet_fruit=mod_data(newdataSet2,"fruit","水果");
+                    bind2(mod_dataSet_fruit,"fruit");
+                    render2(mod_dataSet_fruit,"fruit");        
+                    //console.log(mod_dataSet_fruit);            
+            
+                var  mod_dataSet_tea=mod_data(newdataSet2,"tea","茶葉");
+                    bind2(mod_dataSet_tea,"tea");
+                    render2(mod_dataSet_tea,"tea");
+                    //console.log(mod_dataSet_tea);
+
+                var mod_dataSet_other=mod_data(newdataSet2,"other","其他含特作雜糧");
+                    bind2(mod_dataSet_other,"other");
+                    render2(mod_dataSet_other,"other");                                    
+            
+
+        }
+        
+        function mod_data(tempdataSet,mod_Ename,mod_Cname){
+
+           //var get_data=[];    
+            
+            var get_data_val=[];
+   
+            
+            
+            tempdataSet.forEach(function(dd,ii){ 
+                 var get_data = new Object();
+                for(var key in tempdataSet[ii]){
+                    //console.log("屬性名稱："+ key+" ; 值： "+tempdataSet[ii][key]);                   
+                    get_data[key]=tempdataSet[ii][key];                    
+                }                
+                
+                get_data['s_area']=tempdataSet[ii][mod_Ename+'_area'];
+                get_data['s_count']=tempdataSet[ii][mod_Ename+'_count'];    
+                get_data['s_name']=mod_Cname;                   
+                get_data_val.push(get_data);
+                // console.log(get_data);
+                
+            });
+            
+            //console.log(get_data_val);
+            return get_data_val;
+        }
+        
+        
+
+        //陣列移除重複給下拉選單用
         function unique(array) {
             var n = [];
             for (var i = 0; i < array.length; i++) {
@@ -179,45 +270,48 @@
             d3.select("#svg2").append("g").attr({
                 id: "axisY"
             });
+
+            d_typearr.forEach(function(d,i){
+                d3.select("#svg2").append("g").attr({
+                    id: d+"_g"
+                });                
+            });
+            
+            
         }
 
         //4. 建立bind()
 
-        function bind2(dataSet2) {
-            var selection = d3.select("#svg2")
+        function bind2(dataSet2,d_Ename) {             
+                  
+            d3.selectAll("#"+d_Ename+"-line").remove();                    
+            var selection = d3.select("#svg2>#"+d_Ename+"_g")
                 .selectAll('circle')
                 .data(dataSet2);
-
-            selection.enter().append("circle");
-            selection.exit().remove();
+                selection.enter().append("circle");
+                selection.exit().remove(); 
+            
+            //d3.select("#rice-line").remove();
+            
         }
 
-        function render2(dataSet2) {
+        function render2(dataSet2,d_Ename) {
             //5. 定義xScale,yScale,rScale, fScale比例尺(range目的在決定在svg上位置)
 
-            var xScale = d3.time.scale()
-               .domain([new Date(d3.min(dataSet2, function(d){
-                        return new Date(d.date);
-                    })),new Date(d3.max(dataSet2, function(d){
-                        return new Date(d.date);
-                    }))])
+
+              xScale = d3.time.scale()//x軸比例尺
+                .domain([
+                    new Date("2003-10-01"),
+                    new Date("2015-01-01")
+                ])
                 .range([p, w - p]);
-            var yScale = d3.scale.linear()
+              yScale = d3.scale.linear()//y軸比例尺
                 .domain([0, d3.max(dataSet2, function(d) {
-                    return d.avg_age;
+                    return d.allarea_max;
                 })])
                 .range([h - p, p]);
-            var rScale = d3.scale.linear()
-                .domain([
-                    d3.min(dataSet2, function(d) {
-                        return d.count;
-                    }),
-                    d3.max(dataSet2, function(d) {
-                        return d.count;
-                    }),
-                ])
-                .range([5, 20]);
-            var fScale = d3.scale.category20();
+            
+            
 
             // axis X ----------------------
             var xAxis = d3.svg.axis()
@@ -244,24 +338,25 @@
 
 
             //6. 建立render()繪圖
-            d3.selectAll("circle")
+        
+            
+            //圓點            
+            d3.select("#"+d_Ename+"_g").selectAll("circle")
                 .attr({
+                    id:d_Ename,
                     cx: function(d) {
-                        return xScale(new Date(d.date));
+                        return xScale(new Date((Number(d.year)+1911)+'-01-01'));
                     },
                     cy: function(d) {
-                        return yScale(d.avg_age);
+                        return yScale(d.s_area);
                     },
-                    r: function(d) {
-                        return rScale(d.count);
-                    },
+                    r: 6,
                     fill: function(d) {
-                        return fScale(d.city);
+                        return fdtypeScale(d_Ename);
                     }
                 }).on("mouseover", function(d) {
                     var posX = +d3.select(this).attr("cx");
                     var posY = +d3.select(this).attr("cy");
-
                     var tooltip2 = d3.select("#tooltip2")
                         .style({
                             left: (posX + 20) + "px",
@@ -272,15 +367,68 @@
                         return d.city;
                     });
                     tooltip2.select("#category").text(function(){
-                        return d.category;
+                        return (d.s_name+"栽培面積:"+d.s_area);
                     });
                     tooltip2.select("#count").text(function(){
-                        return ("案例數:"+d.count);
+                        return (d.s_name+"戶數:"+d.s_count);
                     });
+                   // console.log("x:"+posX+"Y:"+posY);
+                
+                    mak_ine((p - 12),yScale(d.s_area),w,yScale(d.s_area),'mouse-line',d_Ename);
+                
+                
+                
                 }).on("mouseout", function() {
                     d3.select("#tooltip2").classed("hidden", true);
-                });
+                    d3.selectAll('#mouse-line').remove();
+                
+                
+                });    
+          
+              
+   
+    
+            
+            //折線圖
+            var setpoints="";
+            
+            for(var i=1;i<dataSet2.length;i++){
+                lstr_x=xScale(new Date((Number(dataSet2[i-1]['year'] )+1911)+'-01-01'));                
+                lstr_y=yScale(dataSet2[i-1]['s_area']);                
+
+                lend_x=xScale(new Date((Number(dataSet2[i]['year'] )+1911)+'-01-01'));                
+                lend_y=yScale(dataSet2[i]['s_area']);                
+             
+                console.log(""+lstr_x+"-"+lstr_y+"-"+lend_x+"-"+lend_y);
+                 mak_ine(lstr_x,lstr_y,lend_x,lend_y,d_Ename+'-line',d_Ename);
+            } 
+            
+               
+           
+            
+            
         }
+        
+          function mak_ine(lstr_x,lstr_y,lend_x,lend_y,setidp,cnum){                          
+            d3.select("body>svg").append("line")
+//               .transition()
+//               .duration(1000)
+//              .delay(500)
+                .attr({
+                "id":setidp, 
+                "x1":lstr_x,
+                "y1":lstr_y,
+                "x2":lend_x,
+                "y2":lend_y,
+                "stroke":fdtypeScale(cnum) 
+            });
+              
+
+        }
+      
+        
+        
+        
 
     </script>
 
